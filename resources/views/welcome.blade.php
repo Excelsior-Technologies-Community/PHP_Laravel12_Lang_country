@@ -1,89 +1,231 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ app()->getLocale() }}">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Laravel 12 - Lang & Country</title>
-
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laravel 12 Lang Country</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         body {
-            font-family: 'Figtree', sans-serif;
+            transition: 0.4s;
+        }
+
+        .dark-mode {
+            background: #111827 !important;
+            color: white !important;
+        }
+
+        .dark-card {
+            background: #1f2937 !important;
+            color: white !important;
+        }
+
+        .dark-box {
+            background: #374151 !important;
+            color: white !important;
+        }
+
+        .dark-input {
+            background: #374151 !important;
+            color: white !important;
+            border: 1px solid #6b7280 !important;
         }
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-indigo-100 via-white to-pink-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+<body id="body"
+    class="bg-gradient-to-r from-indigo-200 via-purple-100 to-pink-100 min-h-screen flex items-center justify-center p-5">
 
-<div class="min-h-screen flex items-center justify-center px-4">
+    <div id="mainCard" class="bg-white shadow-2xl rounded-3xl p-10 w-full max-w-3xl transition-all duration-500">
 
-    <!-- CARD -->
-    <div class="w-full max-w-2xl backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 shadow-2xl rounded-3xl p-10 border border-white/20">
+        <!-- Header -->
 
-        <!-- TITLE -->
-        <h1 class="text-4xl font-extrabold text-center text-gray-800 dark:text-white mb-8">
-            🌍 {{ __('messages.welcome') }}
-        </h1>
+        <div class="flex justify-between items-center mb-6">
 
-        <!-- INFO BOX -->
-        <div class="grid grid-cols-2 gap-6 text-center">
+            <h1 id="title" class="text-4xl font-bold text-indigo-700">
+                🌍 {{ __('messages.welcome') }}
+            </h1>
 
-            <div class="p-6 rounded-2xl bg-white/60 dark:bg-gray-900/40 shadow-md hover:scale-105 transition">
-                <p class="text-sm text-gray-500">Country</p>
-                <p class="text-3xl font-bold text-blue-600">
+            <button onclick="toggleDark()"
+                class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+                🌙 Mode
+            </button>
+
+        </div>
+
+        <!-- Alerts -->
+
+        @if(session('success'))
+            <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <!-- Country & Language -->
+
+        <div class="grid md:grid-cols-2 gap-5">
+
+            <div id="countryBox" class="bg-blue-100 p-5 rounded-2xl text-center shadow transition-all">
+
+                <h2 class="text-xl font-bold text-blue-700">
+                    Country
+                </h2>
+
+                <p class="text-3xl mt-2">
                     {{ request()->segment(1) }}
                 </p>
+
             </div>
 
-            <div class="p-6 rounded-2xl bg-white/60 dark:bg-gray-900/40 shadow-md hover:scale-105 transition">
-                <p class="text-sm text-gray-500">Language</p>
-                <p class="text-3xl font-bold text-green-600">
+            <div id="languageBox2" class="bg-green-100 p-5 rounded-2xl text-center shadow transition-all">
+
+                <h2 class="text-xl font-bold text-green-700">
+                    Language
+                </h2>
+
+                <p class="text-3xl mt-2">
                     {{ app()->getLocale() }}
                 </p>
+
             </div>
 
         </div>
 
-        <!-- DIVIDER -->
-        <div class="my-8 border-t border-gray-300 dark:border-gray-600"></div>
+        <!-- Search -->
 
-        <!-- SWITCH TITLE -->
-        <h2 class="text-center text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">
-            🌐 Choose Language
-        </h2>
+        <div class="mt-8">
 
-        @php
-            $country = request()->segment(1) ?? 'IN';
-        @endphp
+            <input type="text" id="searchInput" placeholder="Search language..."
+                class="w-full border p-3 rounded-xl transition-all" onkeyup="searchLanguage()">
 
-        <!-- BUTTONS -->
-        <div class="flex flex-wrap justify-center gap-4">
+        </div>
 
-            <a href="{{ url($country.'/gu') }}"
-               class="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-400 to-orange-600 text-white font-semibold shadow-lg hover:scale-105 transition">
-                ગુજરાતી 🇮🇳
+        <!-- Buttons -->
+
+        <div id="languageBox" class="flex flex-wrap gap-4 justify-center mt-8">
+
+            <a href="{{ url('/IN/gu') }}"
+                class="lang-btn bg-orange-500 text-white px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition">
+                Gujarati 🇮🇳
             </a>
 
-            <a href="{{ url($country.'/hi') }}"
-               class="px-6 py-3 rounded-xl bg-gradient-to-r from-green-400 to-green-600 text-white font-semibold shadow-lg hover:scale-105 transition">
-                हिन्दी 🇮🇳
+            <a href="{{ url('/IN/hi') }}"
+                class="lang-btn bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition">
+                Hindi 🇮🇳
             </a>
 
-            <a href="{{ url($country.'/en') }}"
-               class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold shadow-lg hover:scale-105 transition">
+            <a href="{{ url('/US/en') }}"
+                class="lang-btn bg-blue-500 text-white px-6 py-3 rounded-xl shadow-lg hover:scale-105 transition">
                 English 🇺🇸
             </a>
 
         </div>
 
+        <!-- History -->
+
+        <div class="mt-10">
+
+            <h2 id="historyTitle" class="text-2xl font-bold mb-4 text-gray-700">
+                🕘 Recent History
+            </h2>
+
+            <div class="space-y-3">
+
+                @php
+                    $history = session('history', []);
+                @endphp
+
+                @forelse(array_reverse($history) as $item)
+
+                    <div class="history-item bg-gray-100 p-4 rounded-xl shadow transition-all">
+
+                        🌍 {{ $item['country'] }}
+                        —
+                        🗣️ {{ $item['language'] }}
+
+                        <br>
+
+                        <small>
+                            {{ $item['time'] }}
+                        </small>
+
+                    </div>
+
+                @empty
+
+                    <div class="text-gray-500">
+                        No history available.
+                    </div>
+
+                @endforelse
+
+            </div>
+
+        </div>
+
     </div>
 
-</div>
+    <script>
+
+        function toggleDark() {
+
+            document.getElementById('body')
+                .classList.toggle('dark-mode');
+
+            document.getElementById('mainCard')
+                .classList.toggle('dark-card');
+
+            document.getElementById('countryBox')
+                .classList.toggle('dark-box');
+
+            document.getElementById('languageBox2')
+                .classList.toggle('dark-box');
+
+            document.getElementById('searchInput')
+                .classList.toggle('dark-input');
+
+            document.querySelectorAll('.history-item')
+                .forEach((item) => {
+                    item.classList.toggle('dark-box');
+                });
+
+            document.getElementById('title')
+                .classList.toggle('text-white');
+
+            document.getElementById('historyTitle')
+                .classList.toggle('text-white');
+        }
+
+        function searchLanguage() {
+
+            let input = document.getElementById('searchInput')
+                .value.toLowerCase();
+
+            let buttons = document.querySelectorAll('.lang-btn');
+
+            buttons.forEach((btn) => {
+
+                if (btn.innerText.toLowerCase().includes(input)) {
+                    btn.style.display = 'inline-block';
+                } else {
+                    btn.style.display = 'none';
+                }
+
+            });
+
+        }
+
+    </script>
 
 </body>
+
 </html>
