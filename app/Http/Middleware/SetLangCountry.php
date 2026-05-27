@@ -9,33 +9,95 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SetLangCountry
 {
-    public function handle(Request $request, Closure $next): Response
-    {
-        $country = strtoupper($request->segment(1));
+    public function handle(
+        Request $request,
+        Closure $next
+    ): Response {
+
+        $country = strtoupper(
+            $request->segment(1)
+        );
+
         $lang = $request->segment(2);
 
-        $supported = config('lang-country.supported');
+        $supported =
+            config('lang-country.supported');
 
-        if (isset($supported[$country])) {
+        if(isset($supported[$country])){
 
-            if (in_array($lang, $supported[$country]['langs'])) {
+            if(
+                in_array(
+                    $lang,
+                    $supported[$country]['langs']
+                )
+            ){
 
                 App::setLocale($lang);
 
-                session()->flash('success', 'Language changed successfully!');
-            } else {
+                session()->flash(
+                    'success',
+                    'Language changed successfully!'
+                );
 
-                App::setLocale($supported[$country]['default_lang']);
+            }else{
 
-                session()->flash('error', 'Unsupported language! Default language loaded.');
+                App::setLocale(
+                    $supported[$country]['default_lang']
+                );
+
+                session()->flash(
+                    'error',
+                    'Unsupported language loaded'
+                );
+
             }
 
-            // Store history
-            session()->push('history', [
-                'country' => $country,
-                'language' => App::getLocale(),
-                'time' => now()->format('d M Y h:i A')
+            $history =
+                session('history',[]);
+
+            $history[]=[
+
+                'country'=>$country,
+
+                'language'=>App::getLocale(),
+
+                'time'=>now()->format(
+                    'd M Y h:i A'
+                )
+
+            ];
+
+            session([
+                'history'=>$history
             ]);
+
+
+            $counter=
+                session(
+                    'lang_count',
+                    []
+                );
+
+            $currentLang=
+                App::getLocale();
+
+            $counter[$currentLang]=
+            ($counter[$currentLang]??0)+1;
+
+            session([
+                'lang_count'=>$counter
+            ]);
+
+
+            session([
+
+                'last_country'=>$country,
+
+                'last_language'=>
+                App::getLocale()
+
+            ]);
+
         }
 
         return $next($request);
